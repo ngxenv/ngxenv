@@ -1,0 +1,63 @@
+#/bin/bash -e
+
+NGINX_BINARY=`pwd`/tmp/nginx/sbin/nginx 
+NGINX_CONFIG=`pwd`/tmp/nginx/conf/nginx.conf
+NGINX_VERSION=1.7.4
+OPENSSL_VERSION=1.0.1i
+
+if [ ! -z "$1" ]; then
+  echo "Nginx is going to be $1 now..."
+
+  if [ "$1" == 'start' ]; then
+    NGINX_BINARY -c NGINX_CONFIG
+  elif [ "$1" == 'stop' ]
+    NGINX_BINARY -s stop
+  fi
+  
+  exit 0
+fi
+
+if [ -f $NGINX_BINARY ]; then
+
+  echo 'You have Nginx installed!'
+  echo 'Use start/stop arguments to manage Nginx process...'
+
+else
+
+  echo 'Nginx install is in progress...'
+  NGXENV_SETTINGS="
+  cd /tmp/nginx-$NGINX_VERSION;
+  ./configure 
+  --prefix=`pwd`/tmp/nginx 
+  --pid-path=`pwd`/tmp/pids/nginx.pid 
+  --conf-path=$NGINX_CONFIG
+  --sbin-path=$NGINX_BINARY 
+  --error-log-path=`pwd`/log/nginx.error.log 
+  --http-log-path=`pwd`/log/nginx.access.log 
+  --with-pcre-jit 
+  --with-http_ssl_module 
+  --with-http_spdy_module 
+  --without-mail_pop3_module 
+  --without-mail_smtp_module 
+  --without-mail_imap_module 
+  --with-http_stub_status_module 
+  --with-http_gzip_static_module 
+  --with-http_secure_link_module 
+  --with-http_flv_module 
+  --with-http_mp4_module 
+  >/dev/null
+  "
+
+  cd /tmp
+  # curl -O http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz
+  # tar xzvf ./nginx-$NGINX_VERSION.tar.gz && rm -f ./nginx-$NGINX_VERSION.tar.gz
+  cd /tmp/nginx-$NGINX_VERSION
+
+  echo '#!/bin/bash -e' > /tmp/nginx_build.sh
+  echo "$NGXENV_SETTINGS" | tr -d '\n' >> /tmp/nginx_build.sh
+
+  chmod +x /tmp/nginx_build.sh
+  bash -e /tmp/nginx_build.sh
+  make >/dev/null
+  make install >/dev/null
+fi
