@@ -1,18 +1,9 @@
-ngxenv
-======
-
-Zero overhead Nginx management tool.
-
 ```
-  $ bash ./nginx-version
-  $ bash ./nginx-version start
-  $ curl http://localhost/
-  <!DOCTYPE html>
-  <html>
-  <head>
-  <title>Welcome to nginx!</title>
-  </head>
-  </html>
+brew cask install docker-toolbox wireshark
+brew install siege
 
-  $ bash ./nginx-version stop
+./vm start
+./ngxenv setup
+./ngxenv wireshark
+./ngxenv benchmark
 ```

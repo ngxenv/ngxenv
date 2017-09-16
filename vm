@@ -1,0 +1,29 @@
+#!/bin/bash -e
+
+# ./vm setup | teardown | start | stop | ps
+
+eval $(docker-machine env default)
+
+function setup(){
+  docker-machine create --driver=virtualbox --virtualbox-nat-nictype=virtio --virtualbox-hostonly-nictype=virtio --virtualbox-no-share default
+  eval $(docker-machine env default)
+  docker network create network0
+  docker-machine ssh default sudo sysctl -w net.core.somaxconn=512
+  docker-machine ssh default sudo sysctl -w net.core.netdev_max_backlog=4096
+  docker-machine ssh default sudo sysctl -w fs.file-max=524288;
+}
+
+function teardown()    { docker-machine rm default -y; }
+function status()      { docker-machine status; }
+function start()       { docker-machine start; }
+function stop()        { docker-machine stop; }
+function ps()          { docker ps; }
+
+case "$1" in
+  setup)       setup ;;
+  teardown)    teardown ;;
+  status)      status ;;
+  start)       start ;;
+  stop)        stop ;;
+  ps)          ps ;;
+esac
