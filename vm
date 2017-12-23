@@ -17,6 +17,7 @@ function teardown()    { docker-machine rm default -y; }
 function status()      { docker-machine status; }
 function start()       { docker-machine start; }
 function stop()        { docker-machine stop; }
+function ssh()         { docker-machine ssh; }
 function ps()          { docker ps; }
 
 case "$1" in
@@ -25,5 +26,6 @@ case "$1" in
   status)      status ;;
   start)       start ;;
   stop)        stop ;;
+  ssh)         ssh ;;
   ps)          ps ;;
 esac

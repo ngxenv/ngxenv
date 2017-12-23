@@ -10,6 +10,7 @@ function setup(){
   docker run --net network0 --name nginx -p 80:80 -e API_KEY=$AMPLIFY_API_KEY -d nginx-amplify
 }
 
+function start()       { docker start nginx; }
 function rebuild()     { docker cp ./nginx.client.conf nginx:/etc/nginx/nginx.conf; docker restart nginx; logs; }
 function configtest()  { docker exec -i -t nginx /bin/bash nginx -t; }
 function teardown()    { docker rm -f nginx; }
@@ -18,19 +19,14 @@ function logs()        { docker exec -t -t nginx /usr/bin/tail -f /var/log/nginx
 function wireshark()   { docker run --rm --net=container:nginx crccheck/tcpdump -i any --immediate-mode -w - | /usr/local/bin/wireshark -k -i -; }
 
 function benchmark()   { 
-  siege -b -t 10m http://$(docker-machine ip)/upstream-close/proxy_pass_connection-close/server_keepalive_timeout-0 && \
+  siege -b -t 10m http://$(docker-machine ip)/upstream-heavy-loaded-close && \
   sleep 30 && \
-  siege -b -t 10m http://$(docker-machine ip)/upstream-close/proxy_pass_connection-keepalive/server_keepalive_timeout-0 && \
-  sleep 30 && \
-  siege -b -t 10m http://$(docker-machine ip)/upstream-close/proxy_pass_connection-keepalive/server_keepalive_timeout-300 && \
-  sleep 30 && \
-  siege -b -t 10m http://$(docker-machine ip)/upstream-keepalive/proxy_pass_connection-keepalive/server_keepalive_timeout-0 && \
-  sleep 30 && \
-  siege -b -t 10m http://$(docker-machine ip)/upstream-keepalive/proxy_pass_connection-keepalive/server_keepalive_timeout-300;
+  siege -b -t 10m http://$(docker-machine ip)/upstream-heavy-loaded-keepalive
 }
 
 case "$1" in
   setup)       setup ;;
+  start)       start ;;
   teardown)    teardown ;;
   rebuild)     rebuild ;;
   configtest)  configtest ;;
